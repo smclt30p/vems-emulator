@@ -12,6 +12,7 @@
 #include "hip9011.h"
 #include "outputs.h"
 #include "hc259.h"
+#include "lcd.h"
 
 extern "C" {
 #include "sim_avr.h"
@@ -106,6 +107,7 @@ public:
     Hc259& ignmux() { return ignmux_; }
     Hc259& outmux() { return outmux_; }
     Hc259& auxmux() { return auxmux_; }
+    Hd44780& lcd() { return lcd_; }
 
 private:
     void sim_loop();
@@ -191,4 +193,5 @@ private:
     Hc259 ignmux_;
     Hc259 outmux_;
     Hc259 auxmux_;
+    Hd44780 lcd_;
 };

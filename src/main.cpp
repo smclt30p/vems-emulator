@@ -803,6 +803,86 @@ int main(int argc, char** argv) {
         ImGui::EndTabItem();
         }
 
+        // ===== Tab: LCD (HD44780 20x4, 4-bit) =====
+        if (ImGui::BeginTabItem("LCD")) {
+        Hd44780& lcd = emu.lcd();
+
+        ImGui::TextDisabled("HD44780 20x4, 4-bit  ·  RS=aux259 Q0  E=PC1  D4-D7=PC4-PC7  DDIR=PC0");
+        ImGui::Spacing();
+
+        // ----- the glass: 20x4 character panel -----
+        char rows[Hd44780::ROWS][Hd44780::COLS];
+        lcd.snapshot(rows);
+
+        ImDrawList* dl = ImGui::GetWindowDrawList();
+        ImFont* font = ImGui::GetFont();
+        float fs = 26.0f;
+        float cw = fs * 0.62f;          // fixed cell advance (monospaced look)
+        float chh = fs + 8.0f;
+        float padx = 14.0f, pady = 12.0f;
+        ImVec2 o = ImGui::GetCursorScreenPos();
+        float pw = cw * Hd44780::COLS + padx * 2;
+        float ph = chh * Hd44780::ROWS + pady * 2;
+
+        ImU32 bezel = IM_COL32(20, 24, 30, 255);
+        ImU32 glass = lcd.display_on() ? IM_COL32(20, 60, 180, 255) : IM_COL32(16, 28, 70, 255);
+        ImU32 chr   = lcd.display_on() ? IM_COL32(225, 240, 255, 255) : IM_COL32(70, 100, 170, 255);
+        ImU32 cell  = IM_COL32(255, 255, 255, 12);
+        dl->AddRectFilled(o, ImVec2(o.x + pw + 16, o.y + ph + 16), bezel, 8.0f);
+        ImVec2 g0 = ImVec2(o.x + 8, o.y + 8);
+        dl->AddRectFilled(g0, ImVec2(g0.x + pw, g0.y + ph), glass, 4.0f);
+
+        for (int r = 0; r < Hd44780::ROWS; r++)
+            for (int c = 0; c < Hd44780::COLS; c++) {
+                ImVec2 p = ImVec2(g0.x + padx + c * cw, g0.y + pady + r * chh);
+                dl->AddRectFilled(p, ImVec2(p.x + cw - 1.5f, p.y + chh - 2.0f), cell);
+                char s[2] = { rows[r][c], 0 };
+                if (s[0] != ' ')
+                    dl->AddText(font, fs, ImVec2(p.x + cw * 0.12f, p.y + 1.0f), chr, s);
+            }
+        ImGui::Dummy(ImVec2(pw + 16, ph + 16));
+
+        ImGui::Spacing();
+        ImGui::Text("display %s   4-bit %s   DDRAM addr 0x%02X   strobes %llu   chars %llu",
+            lcd.display_on() ? "ON" : "off", lcd.four_bit() ? "yes" : "no (8-bit init)",
+            lcd.cursor(), (unsigned long long)lcd.strobes(), (unsigned long long)lcd.chars());
+
+        // ----- raw I/O lines, toggling like the injector LEDs -----
+        ImGui::Spacing();
+        ImGui::BeginChild("grp_lcdio", ImVec2(0, 0), group_flags);
+        {
+            ImGui::SeparatorText("LCD bus lines");
+            static bool prev[7] = {};
+            static float flash[7] = {};
+            auto io_led = [&](int i, const char* label, bool lvl, const char* pin) {
+                if (lvl != prev[i]) { flash[i] = 1.0f; prev[i] = lvl; }
+                flash[i] -= ImGui::GetIO().DeltaTime * 4.0f;
+                if (flash[i] < 0.0f) flash[i] = 0.0f;
+                float g = lvl ? 1.0f : flash[i];
+                ImU32 on = IM_COL32(90, 220, 130, 255);
+                ImDrawList* d2 = ImGui::GetWindowDrawList();
+                ImVec2 pp = ImGui::GetCursorScreenPos();
+                float rr = 7.0f;
+                ImVec2 cc = ImVec2(pp.x + rr, pp.y + ImGui::GetTextLineHeight() * 0.5f);
+                d2->AddCircleFilled(cc, rr, g > 0.05f ? on : IM_COL32(55, 55, 65, 255));
+                if (g > 0.05f) d2->AddCircle(cc, rr + 2.0f + g * 2.0f, on, 0, 1.5f);   // decaying glow ring
+                ImGui::Dummy(ImVec2(rr * 2 + 6, ImGui::GetTextLineHeight()));
+                ImGui::SameLine();
+                ImGui::Text("%-5s %-6s %s", label, pin, lvl ? "HIGH" : "low");
+            };
+            io_led(0, "RS",   lcd.rs(),      "Q0");
+            io_led(1, "E",    lcd.en(),      "PC1");
+            io_led(2, "DDIR", lcd.ddir(),    "PC0");
+            io_led(3, "D4",   lcd.data(4),   "PC4");
+            io_led(4, "D5",   lcd.data(5),   "PC5");
+            io_led(5, "D6",   lcd.data(6),   "PC6");
+            io_led(6, "D7",   lcd.data(7),   "PC7");
+        }
+        ImGui::EndChild();
+
+        ImGui::EndTabItem();
+        }
+
         ImGui::EndTabBar();
         }
 

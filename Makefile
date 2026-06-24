@@ -28,7 +28,7 @@ IMGUI_SRC := $(IMGUI)/imgui.cpp $(IMGUI)/imgui_draw.cpp $(IMGUI)/imgui_tables.cp
              $(IMGUI)/imgui_widgets.cpp \
              $(IMGUI)/backends/imgui_impl_sdl2.cpp $(IMGUI)/backends/imgui_impl_opengl3.cpp
 
-APP_SRC  := $(SRC)/main.cpp $(SRC)/emu_core.cpp $(SRC)/uart_bridge.cpp $(SRC)/mcp3208.cpp $(SRC)/hip9011.cpp $(SRC)/outputs.cpp $(SRC)/hc259.cpp
+APP_SRC  := $(SRC)/main.cpp $(SRC)/emu_core.cpp $(SRC)/uart_bridge.cpp $(SRC)/mcp3208.cpp $(SRC)/hip9011.cpp $(SRC)/outputs.cpp $(SRC)/hc259.cpp $(SRC)/lcd.cpp
 
 BUILD    := build
 OBJ      := $(patsubst %.cpp,$(BUILD)/%.o,$(notdir $(IMGUI_SRC) $(APP_SRC)))

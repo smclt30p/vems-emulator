@@ -21,11 +21,11 @@ VemsTune --TCP 127.0.0.1:29000--> vems_emulator --> real vems firmware
 - Mocked 60-2 crank signal
 - EEPROM save / read to disk
 - Knock chip emulation
+- 20x4 HD44780 LCD (4-bit)
 
 **TODO**
 
 - Wideband controller
-- LCD controller
 - PS2
 
 ## Build

@@ -48,6 +48,8 @@ EmuCore::EmuCore() {
 
     outputs_.define(Outputs::Def{ 'C', 3, "KNK_INT", "Knock", true });   // HIP9011 INT/HOLD (high=integrate)
     outputs_.set_angle_source(&crank_total_deg_);
+
+    lcd_.configure(&auxmux_, 0);   // RS = aux 74HC259 Q0 (LCD_RS)
 }
 EmuCore::~EmuCore() {
     quit_ = true;
@@ -361,6 +363,7 @@ void EmuCore::do_load(const std::string& path) {
     ignmux_.attach(avr_);
     outmux_.attach(avr_);
     auxmux_.attach(avr_);
+    lcd_.attach(avr_);
     cycles_ = 0;
     adc_dirty_ = true;
 
