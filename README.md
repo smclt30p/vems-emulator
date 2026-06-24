@@ -1,10 +1,10 @@
-# VEMS Emulator
+# VEMS Genboard v3.8 Emulator
 <img width="1031" height="1037" alt="vems-emulator" src="https://github.com/user-attachments/assets/83715fb2-bda8-4b09-a8a3-7384f73755d1" />
 
 
-Runs the **real VEMS firmware** on a simulated ATmega128 (via
-[simavr](https://github.com/buserror/simavr)) and talks to **VemsTune**
-over TCP — no ECU hardware required.
+Runs the real VEMS firmware (non-crypto) on a simulated ATmega128 (via
+[simavr](https://github.com/buserror/simavr)) and talks to VemsTune
+over TCP or COM — no ECU hardware required.
 
 ```
 VemsTune --TCP 127.0.0.1:29000--> vems_emulator --> real vems firmware
@@ -26,6 +26,7 @@ VemsTune --TCP 127.0.0.1:29000--> vems_emulator --> real vems firmware
 
 - Wideband controller
 - LCD controller
+- PS2
 
 ## Build
 
