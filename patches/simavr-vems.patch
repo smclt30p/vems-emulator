@@ -1,0 +1,62 @@
+diff -ruN a/Makefile.common b/Makefile.common
+--- a/Makefile.common	2026-06-25 00:36:47
++++ b/Makefile.common	2026-06-25 00:36:47
+@@ -62,12 +62,13 @@
+   ifneq (${shell test -d /opt/local/avr && echo Exists}, Exists)
+    $(error Please install avr-gcc: port install avr-gcc avr-libc)
+   endif
+-  ifneq (${shell test -d /opt/local/include/libelf && echo Exists}, Exists)
+-   $(error Please install libelf: port install libelf)
++  LIBELF_CELLAR := $(firstword $(wildcard /usr/local/Cellar/libelf/*/))
++  ifeq ($(LIBELF_CELLAR),)
++   $(error Please install libelf: brew install libelf)
+   endif
+   CC		= clang
+-  IPATH		+= /opt/local/include /opt/local/include/libelf
+-  LFLAGS	= -L/opt/local/lib/
++  IPATH		+= /opt/local/include $(LIBELF_CELLAR)include $(LIBELF_CELLAR)include/libelf
++  LFLAGS	= -L/opt/local/lib/ -L$(LIBELF_CELLAR)lib
+   AVR 		:= /opt/local/bin/avr-
+  else
+   # That's for Homebrew libelf and avr-gcc support
+diff -ruN a/simavr/sim/avr_flash.c b/simavr/sim/avr_flash.c
+--- a/simavr/sim/avr_flash.c	2026-06-25 00:36:47
++++ b/simavr/sim/avr_flash.c	2026-06-25 00:36:47
+@@ -97,6 +97,7 @@
+ 						case 0x2: *result = avr->fuse[2]; break; // EFuse
+ 						case 0x3: *result = avr->fuse[1]; break; // HFuse
+ 					}
++					avr->flash_lockread++;
+ 				} else if (avr_regbit_get(avr, p->sigrd)) {
+ 					AVR_LOG(avr, LOG_TRACE, "FLASH: Reading signature&serial byte %02x\n", z);
+ 					switch (z) {
+@@ -131,6 +132,7 @@
+ 					AVR_LOG(avr, LOG_TRACE, "FLASH: Erasing page %04x (%d)\n", (z / p->spm_pagesize), p->spm_pagesize);
+ 					for (int i = 0; i < p->spm_pagesize; i++)
+ 						avr->flash[z++] = 0xff;
++					avr->flash_pageerase++;
+ 				} else if (avr_regbit_get(avr, p->pgwrt)) {
+ 					z &= ~(p->spm_pagesize - 1);
+ 					AVR_LOG(avr, LOG_TRACE, "FLASH: Writing page %04x (%d)\n", (z / p->spm_pagesize), p->spm_pagesize);
+@@ -139,6 +141,7 @@
+ 						avr->flash[z++] = p->tmppage[i] >> 8;
+ 					}
+ 					avr_flash_clear_temppage(p);
++					avr->flash_pagewrite++;
+ 				} else if (avr_regbit_get(avr, p->blbset)) {
+ 					AVR_LOG(avr, LOG_TRACE, "FLASH: Setting lock bits (ignored)\n");
+ 				} else if (p->flags & AVR_SELFPROG_HAVE_RWW && avr_regbit_get(avr, p->rwwsre)) {
+diff -ruN a/simavr/sim/sim_avr.h b/simavr/sim/sim_avr.h
+--- a/simavr/sim/sim_avr.h	2026-06-25 00:36:47
++++ b/simavr/sim/sim_avr.h	2026-06-25 00:36:47
+@@ -412,6 +412,10 @@
+ 	// Table of register names used by gdb and tracing.
+ 
+ 	const char ** data_names;
++
++	uint32_t	flash_lockread;
++	uint32_t	flash_pageerase;
++	uint32_t	flash_pagewrite;
+ } avr_t;
+ 
+ 

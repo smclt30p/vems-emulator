@@ -1,0 +1,6 @@
+[submodule "vendor/imgui"]
+	path = vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "vendor/simavr"]
+	path = vendor/simavr
+	url = https://github.com/buserror/simavr.git

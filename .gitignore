@@ -1,0 +1,21 @@
+# Build output
+build/
+vems_emulator
+*.o
+*.d
+*.a
+
+# Proprietary VEMS v3 bootloader — never commit. Load it at runtime via File -> Open bootloader.
+src/bootloader_image.h
+
+# Firmware / EEPROM images and logs (user-supplied, not part of the emulator)
+*.hex
+*.uhex
+*.bin
+eeprom.bin
+
+# macOS
+.DS_Store
+
+# ImGui runtime layout
+imgui.ini
