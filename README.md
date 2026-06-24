@@ -1,4 +1,6 @@
 # VEMS Emulator
+<img width="1031" height="1037" alt="vems-emulator" src="https://github.com/user-attachments/assets/83715fb2-bda8-4b09-a8a3-7384f73755d1" />
+
 
 Runs the **real VEMS firmware** on a simulated ATmega128 (via
 [simavr](https://github.com/buserror/simavr)) and talks to **VemsTune**
