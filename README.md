@@ -10,21 +10,28 @@ over TCP — no ECU hardware required.
 VemsTune --TCP 127.0.0.1:29000--> vems_emulator --> real vems firmware
 ```
 
-## What it does
+## Status
 
-- Loads any `.hex` / `.bin` firmware and runs it.
-- Serial bridge on `127.0.0.1:29000` for VemsTune.
-- Fake inputs: crank/cam trigger, ADC sensors, MCP3208, HIP9011 knock.
-- Live output scope: injectors, ignition, the 74x259 / TPIC latches and
-  knock integrate/hold plotted against 0–720° crank angle.
-- v3 bootloader support for serial firmware updates (load your own
-  bootloader hex via **File → Open bootloader**).
+**Working**
 
-The proprietary VEMS bootloader is **not** bundled.
+- VemsTune connection over TCP or serial
+- Reading / writing config pages
+- Non-crypto bootloader
+- All inputs and outputs faked
+- Mocked 60-2 crank signal
+- EEPROM save / read to disk
+- Knock chip emulation
+
+**TODO**
+
+- Wideband controller
+- LCD controller
 
 ## Build
 
 Needs `clang++`, `make`, `git`, plus SDL2 and libelf:
+
+Tested on macOS only (for now).
 
 ```sh
 brew install sdl2 libelf          # macOS
@@ -52,10 +59,7 @@ See `patches/README.md` for the simavr changes.
 
 In VemsTune: **Communication → TCP → Host `127.0.0.1`, Port `29000`**.
 
-## Layout
+## License
 
-```
-src/        emulator sources (ImGui UI + simavr core)
-vendor/     imgui + simavr submodules
-patches/    local simavr patch (flash counters, libelf paths)
-```
+[GPL-3.0-or-later](LICENSE). Submodules keep their own licenses:
+simavr (GPL-3.0), Dear ImGui (MIT).
